@@ -7,5 +7,5 @@ Practice project with data from a fictional movie rental company named Blockbust
 - Where are customers with a high l ifetime value based?
 - Do sales figures vary between geographic regions?
 ### Deliverables:
-- Visualisations of SQL results in Tableau
+- Visualisations of SQL results in Tableau: https://public.tableau.com/views/A3-Task10Dashboard/Story1?:language=en-US&:display_count=n&:origin=viz_share_link
 - Presentation of findings to business stakeholders
