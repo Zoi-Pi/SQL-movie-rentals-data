@@ -1,0 +1,37 @@
+Step 1: Find the average amount paid by the top 5 customers.
+
+INNER:
+(SELECT A.customer_id AS Customer_ID, 
+        A.first_name AS Customer_First_Name, 
+        A.last_name AS Customer_Last_Name, 
+        C.city AS City,
+        D.country AS Country,
+         SUM(E.amount) AS Total_Amount_Paid 
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+INNER JOIN payment E ON A.customer_id = E.customer_id
+WHERE city IN ('Aurora','Acua','Citrus Heights','Iwaki','Ambattur','Shanwei','So Leopoldo','Teboksary','Tianjin','Cianjur')
+GROUP BY A.customer_id, C.city, D.country ORDER BY SUM(amount)DESC
+LIMIT 5) AS total_amount_paid
+
+OUTER:
+SELECT AVG(amount)
+FROM payment 
+
+COMBINED:
+SELECT AVG(total_amount_paid) AS average 
+FROM
+  (SELECT A.customer_id AS Customer_ID, A.first_name AS Customer_First_Name,
+        A.last_name AS Customer_Last_Name, C.city AS City,
+        D.country AS Country,
+        SUM(E.amount) AS Total_Amount_Paid
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+INNER JOIN payment E ON A.customer_id = E.customer_id
+WHERE city IN ('Aurora','Acua','Citrus Heights','Iwaki','Ambattur','Shanwei','So Leopoldo','Teboksary','Tianjin','Cianjur')
+GROUP BY A.customer_id, C.city, D.country ORDER BY SUM(amount)DESC
+LIMIT 5) AS top_five_customers
