@@ -1,0 +1,56 @@
+Answer questions using CTEs instead of subqueries.
+
+Average amount paid by top 5 customers:
+
+WITH top_five_customers_cte (customer_ID, customer_first_name, customer_last_name, city, country, total_amount_paid) AS
+(SELECT A.customer_id,
+        A.first_name, 
+        A.last_name, 
+        C.city,
+        D.country,
+        SUM(E.amount)
+ FROM customer A
+ INNER JOIN address B ON A.address_id = B.address_id
+ INNER JOIN city C ON B.city_id = C.city_id
+ INNER JOIN country D ON C.country_id = D.country_id
+ INNER JOIN payment E ON A.customer_id = E.customer_id
+ WHERE city IN ('Aurora','Acua','Citrus Heights','Iwaki','Ambattur','Shanwei','So Leopoldo','Teboksary','Tianjin','Cianjur')
+ GROUP BY A.customer_id, C.city, D.country 
+ ORDER BY SUM(amount)DESC
+ LIMIT 5)
+SELECT AVG(total_amount_paid) AS average 
+FROM top_five_customers_cte
+
+How many of the top 5 customers are based within each country:
+
+WITH all_customer_count_cte (all_customer_count, country) AS 
+(SELECT COUNT(A.customer_id),
+        D.country 
+ FROM customer A
+ INNER JOIN address B ON A.address_id = B.address_id 
+ INNER JOIN city C ON B.city_id = C.city_id
+ INNER JOIN country D ON C.country_id = D.country_id 
+ GROUP BY D.country),
+top_customer_count_cte (country, top_customer_count) AS 
+(SELECT country,
+        COUNT(country) AS top_customer_count
+ FROM
+      (SELECT A.customer_id AS Customer_ID,
+              A.first_name AS Customer_First_Name, 
+              A.last_name AS Customer_Last_Name, 
+              C.city AS City,
+              D.country AS Country,
+              SUM(E.amount) AS Total_Amount_Paid 
+       FROM customer A
+       INNER JOIN address B ON A.address_id = B.address_id
+       INNER JOIN city C ON B.city_id = C.city_id
+       INNER JOIN country D ON C.country_id = D.country_id
+       INNER JOIN payment E ON A.customer_id = E.customer_id
+       WHERE city IN ('Aurora','Acua','Citrus Heights','Iwaki','Ambattur','Shanwei','So Leopoldo','Teboksary','Tianjin','Cianjur') 
+       GROUP BY A.customer_id, C.city, D.country 
+       ORDER BY SUM(amount)DESC
+       LIMIT 5) AS top_five_customers
+  GROUP BY country)
+SELECT all_customer_count_cte.country, all_customer_count, top_customer_count 
+FROM all_customer_count_cte
+LEFT JOIN top_customer_count_cte ON all_customer_count_cte.country = top_customer_count_cte.country
